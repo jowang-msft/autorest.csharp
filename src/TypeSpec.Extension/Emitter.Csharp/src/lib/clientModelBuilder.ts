@@ -138,42 +138,44 @@ export function createModelForService(
         }
     }
     const [services] = getAllHttpServices(program);
-    const routes = services[0].operations;
-    if (routes.length === 0) {
-        $lib.reportDiagnostic(program, {
-            code: "No-Route",
-            format: { service: services[0].namespace.name },
-            target: NoTarget
-        });
-    }
-    logger.info("routes:" + routes.length);
+    //ACSHACK
+    // const routes = services[0].operations;
+    // if (routes.length === 0) {
+    //     $lib.reportDiagnostic(program, {
+    //         code: "No-Route",
+    //         format: { service: services[0].namespace.name },
+    //         target: NoTarget
+    //     });
+    // }
+    // logger.info("routes:" + routes.length);
 
     const clients: InputClient[] = [];
     const dpgClients = listClients(sdkContext);
     for (const client of dpgClients) {
-        clients.push(emitClient(client));
+        //clients.push(emitClient(client));  //ACSHACK - hack to remove NETClient
         addChildClients(sdkContext.emitContext, client, clients);
     }
 
-    for (const client of clients) {
-        for (const op of client.Operations) {
-            const apiVersionIndex = op.Parameters.findIndex(
-                (value: InputParameter) => value.IsApiVersion
-            );
-            if (apiVersionIndex === -1) {
-                continue;
-            }
-            const apiVersionInOperation = op.Parameters[apiVersionIndex];
-            if (defaultApiVersionConstant !== undefined) {
-                if (!apiVersionInOperation.DefaultValue?.Value) {
-                    apiVersionInOperation.DefaultValue =
-                        defaultApiVersionConstant;
-                }
-            } else {
-                apiVersionInOperation.Kind = InputOperationParameterKind.Method;
-            }
-        }
-    }
+    //ACSHACK
+    // for (const client of clients) {
+    //     for (const op of client.Operations) {
+    //         const apiVersionIndex = op.Parameters.findIndex(
+    //             (value: InputParameter) => value.IsApiVersion
+    //         );
+    //         if (apiVersionIndex === -1) {
+    //             continue;
+    //         }
+    //         const apiVersionInOperation = op.Parameters[apiVersionIndex];
+    //         if (defaultApiVersionConstant !== undefined) {
+    //             if (!apiVersionInOperation.DefaultValue?.Value) {
+    //                 apiVersionInOperation.DefaultValue =
+    //                     defaultApiVersionConstant;
+    //             }
+    //         } else {
+    //             apiVersionInOperation.Kind = InputOperationParameterKind.Method;
+    //         }
+    //     }
+    // }
 
     navigateModels(sdkContext, serviceNamespaceType, modelMap, enumMap);
 
@@ -202,7 +204,8 @@ export function createModelForService(
             client as SdkClient
         );
         for (const dpgGroup of dpgOperationGroups) {
-            var subClient = emitClient(dpgGroup, client);
+            //var subClient = emitClient(dpgGroup, client); //ACSHACK
+            var subClient = emitClient(dpgGroup);
             clients.push(subClient);
             addChildClients(context, dpgGroup, clients);
         }

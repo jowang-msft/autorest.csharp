@@ -30,6 +30,8 @@ internal record InputOperation(
     OperationPaging? Paging,
     bool GenerateProtocolMethod,
     bool GenerateConvenienceMethod,
+    string? PropertyType, //ACSHACK
+    string? EventType, //ACSHACK
     bool KeepClientDefaultValue)
 {
     public InputOperation() : this(
@@ -52,6 +54,8 @@ internal record InputOperation(
         Paging: null,
         GenerateProtocolMethod: true,
         GenerateConvenienceMethod: false,
+        PropertyType: null, //ACSHACK
+        EventType: null, //ACSHACK
         KeepClientDefaultValue: false)
     { }
 
@@ -77,6 +81,8 @@ internal record InputOperation(
             operation.Paging,
             operation.GenerateProtocolMethod,
             operation.GenerateConvenienceMethod,
+            operation.PropertyType, //ACSHACK
+            operation.EventType, //ACSHACK
             operation.KeepClientDefaultValue);
     }
 

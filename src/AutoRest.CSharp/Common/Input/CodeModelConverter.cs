@@ -157,7 +157,9 @@ namespace AutoRest.CSharp.Common.Input
                 Paging: CreateOperationPaging(serviceRequest, operation),
                 GenerateProtocolMethod: true,
                 GenerateConvenienceMethod: false,
-                KeepClientDefaultValue: Configuration.MethodsToKeepClientDefaultValue.Contains(operation.OperationId));
+                KeepClientDefaultValue: Configuration.MethodsToKeepClientDefaultValue.Contains(operation.OperationId),
+                PropertyType: null, //ACSHACK
+                EventType: null); //ACSHACK
         }
 
         public List<InputParameter> CreateOperationParameters(IReadOnlyCollection<RequestParameter> requestParameters)

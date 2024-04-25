@@ -240,7 +240,9 @@ export function loadOperation(
         LongRunning: loadLongRunningOperation(sdkContext, operation),
         Paging: paging,
         GenerateProtocolMethod: generateProtocol,
-        GenerateConvenienceMethod: generateConvenience
+        GenerateConvenienceMethod: generateConvenience,
+        PropertyType: program.stateMap(Symbol.for(op.name)).get(op), //ACSHACK
+        EventType: program.stateMap(Symbol.for(op.name)).get(op) //ACSHACK
     } as InputOperation;
 
     function loadOperationParameter(

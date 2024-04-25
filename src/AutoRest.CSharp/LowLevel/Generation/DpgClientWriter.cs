@@ -8,7 +8,9 @@ using System.Text.Json;
 using System.Threading;
 using AutoRest.CSharp.Common.Generation.Writers;
 using AutoRest.CSharp.Common.Input;
+using AutoRest.CSharp.Common.Output.Expressions.KnownValueExpressions; //ACSHACK
 using AutoRest.CSharp.Common.Output.Expressions.Statements;
+using AutoRest.CSharp.Common.Output.Expressions.ValueExpressions; //ACSHACK
 using AutoRest.CSharp.Common.Output.Models;
 using AutoRest.CSharp.Common.Output.Models.Responses;
 using AutoRest.CSharp.Generation.Types;
@@ -62,22 +64,54 @@ namespace AutoRest.CSharp.Generation.Writers
 
                     foreach (var clientMethod in _client.ClientMethods)
                     {
-                        var longRunning = clientMethod.LongRunning;
-                        var pagingInfo = clientMethod.PagingInfo;
-
-                        if (clientMethod.ConvenienceMethod is { } convenienceMethod)
+                        //ACSHACK
+                        if (clientMethod.RequestMethod.Operation.PropertyType == "Get")
                         {
-                            var samples = clientMethod.Samples.Where(s => s.IsConvenienceSample);
-                            WriteConvenienceMethodDocumentationWithExternalXmlDoc(convenienceMethod, true);
-                            WriteConvenienceMethod(clientMethod, convenienceMethod, longRunning, pagingInfo, true);
-                            WriteConvenienceMethodDocumentationWithExternalXmlDoc(convenienceMethod, false);
-                            WriteConvenienceMethod(clientMethod, convenienceMethod, longRunning, pagingInfo, false);
+                            // Create ACS property, ugly but who cares for POC :P
+                            var property = new PropertyDeclaration(
+                                description: $"Gets the Calls.",
+                                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                                propertyType: new CSharpType(typeof(IEnumerable<string>)),
+                                name: "Calls",
+                                propertyBody: new MethodPropertyBody(new MethodBodyStatement[]
+                                {
+                                    Throw(Snippets.New.Instance(typeof(InvalidOperationException), Literal("The current instance does not have data, you must call Get first.")))
+                                    //new IfStatement(Not(new BoolExpression(new VariableReference(hasDataProperty.PropertyType, hasDataProperty.Declaration))), AddBraces: false)
+                                    //{
+                                    //    Throw(Snippets.New.Instance(typeof(InvalidOperationException), Literal("The current instance does not have data, you must call Get first.")))
+                                    //},
+                                    //Return(new MemberExpression(null, DataFieldName))
+                                }),
+                                exceptions: new Dictionary<CSharpType, FormattableString>()
+                                {
+                                    [typeof(InvalidOperationException)] = $"Throws if there is no data loaded in the current instance."
+                                });;
+                            _writer.WriteProperty(property);
                         }
+                        else
+                        if (!string.IsNullOrEmpty(clientMethod.RequestMethod.Operation.EventType))
+                        {
+                            _writer.WriteEventHandler(clientMethod.RequestMethod.Operation, clientMethod.ProtocolMethodSignature.Modifiers);
+                        }
+                        else
+                        {
+                            var longRunning = clientMethod.LongRunning;
+                            var pagingInfo = clientMethod.PagingInfo;
 
-                        WriteProtocolMethodDocumentationWithExternalXmlDoc(clientMethod, true);
-                        WriteProtocolMethod(_writer, clientMethod, _client.Fields, longRunning, pagingInfo, true);
-                        WriteProtocolMethodDocumentationWithExternalXmlDoc(clientMethod, false);
-                        WriteProtocolMethod(_writer, clientMethod, _client.Fields, longRunning, pagingInfo, false);
+                            if (clientMethod.ConvenienceMethod is { } convenienceMethod)
+                            {
+                                var samples = clientMethod.Samples.Where(s => s.IsConvenienceSample);
+                                WriteConvenienceMethodDocumentationWithExternalXmlDoc(convenienceMethod, true);
+                                WriteConvenienceMethod(clientMethod, convenienceMethod, longRunning, pagingInfo, true);
+                                WriteConvenienceMethodDocumentationWithExternalXmlDoc(convenienceMethod, false);
+                                WriteConvenienceMethod(clientMethod, convenienceMethod, longRunning, pagingInfo, false);
+                            }
+
+                            WriteProtocolMethodDocumentationWithExternalXmlDoc(clientMethod, true);
+                            WriteProtocolMethod(_writer, clientMethod, _client.Fields, longRunning, pagingInfo, true);
+                            WriteProtocolMethodDocumentationWithExternalXmlDoc(clientMethod, false);
+                            WriteProtocolMethod(_writer, clientMethod, _client.Fields, longRunning, pagingInfo, false);
+                        }
                     }
 
                     foreach (var clientMethod in _client.CustomMethods())

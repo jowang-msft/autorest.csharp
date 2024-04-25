@@ -29,3 +29,23 @@ export function hasDecorator(type: DecoratedType, name: string): boolean {
         type.decorators.find((it) => it.decorator.name === name) !== undefined
     );
 }
+
+//ACSHACK
+export const $property = (
+    context: SdkContext,
+    entity: Operation,
+    verb: string
+) => {
+    const { program } = context;
+  
+    program.stateMap(Symbol.for(entity.name)).set(entity, verb);
+};
+
+//ACSHACK
+export const $event = (
+    context: SdkContext,
+    entity: Operation
+) => {
+    const { program } = context;
+    program.stateMap(Symbol.for(entity.name)).set(entity, "");
+};

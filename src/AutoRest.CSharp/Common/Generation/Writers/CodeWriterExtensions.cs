@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using AutoRest.CSharp.Common.Output.Builders;
+using AutoRest.CSharp.Common.Input;
+using AutoRest.CSharp.Common.Output.Builders; //ACSHACK
 using AutoRest.CSharp.Common.Output.Expressions.KnownValueExpressions;
 using AutoRest.CSharp.Common.Output.Expressions.Statements;
 using AutoRest.CSharp.Common.Output.Expressions.ValueExpressions;
@@ -773,6 +774,22 @@ namespace AutoRest.CSharp.Generation.Writers
                     .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private));
             }
         }
+
+        //ACSHACK
+        public static CodeWriter WriteEventHandler(this CodeWriter writer, InputOperation inputOperation, MethodSignatureModifiers modifiers)
+        {
+            if (inputOperation.Description != null)
+            {
+                FormattableString desc = $@"{inputOperation.Description}";
+                writer.Line().WriteXmlDocumentationSummary(desc);
+            }
+
+            writer.AppendRaw(modifiers.HasFlag(MethodSignatureModifiers.Public) ? "public " : (modifiers.HasFlag(MethodSignatureModifiers.Internal) ? "internal " : "private "));
+
+            writer.AppendRaw($"event EventHandler<EventArg> {inputOperation.CleanName};"); // TODO: Grab EventArgs from operation as well as the param variable.
+
+            return writer.Line();
+        }        
 
         public static void WriteTypeArguments(this CodeWriter writer, IEnumerable<CSharpType>? typeArguments)
         {

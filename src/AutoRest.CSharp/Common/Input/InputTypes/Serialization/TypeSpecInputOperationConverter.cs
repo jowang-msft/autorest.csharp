@@ -48,6 +48,8 @@ namespace AutoRest.CSharp.Common.Input
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             bool keepClientDefaultValue = false;
+            string? propertyType = null; //ACSHACK
+            string? eventType = null; //ACSHACK
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -71,6 +73,8 @@ namespace AutoRest.CSharp.Common.Input
                     || reader.TryReadWithConverter(nameof(InputOperation.Paging), options, ref paging)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateProtocolMethod), ref generateProtocolMethod)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod)
+                    || reader.TryReadString(nameof(InputOperation.PropertyType), ref propertyType) //ACSHACK
+                    || reader.TryReadString(nameof(InputOperation.EventType), ref eventType) //ACSHACK
                     || reader.TryReadBoolean(nameof(InputOperation.KeepClientDefaultValue), ref keepClientDefaultValue);
 
                 if (!isKnownProperty)
@@ -90,7 +94,7 @@ namespace AutoRest.CSharp.Common.Input
             parameters = parameters ?? throw new JsonException("InputOperation must have parameters");
             responses = responses ?? throw new JsonException("InputOperation must have responses");
 
-            var inputOperation = new InputOperation(name, resourceName, summary, deprecated, description, accessibility, parameters, responses, httpMethod, requestBodyMediaType, uri, path, externalDocsUri, requestMediaTypes, bufferResponse, longRunning, paging, generateProtocolMethod, generateConvenienceMethod, keepClientDefaultValue);
+            var inputOperation = new InputOperation(name, resourceName, summary, deprecated, description, accessibility, parameters, responses, httpMethod, requestBodyMediaType, uri, path, externalDocsUri, requestMediaTypes, bufferResponse, longRunning, paging, generateProtocolMethod, generateConvenienceMethod, propertyType, eventType, keepClientDefaultValue); //ACSHACK
             if (id != null)
             {
                 resolver.AddReference(id, inputOperation);
